@@ -1,8 +1,8 @@
 Package: com.liam.linkedwin
 Name: LinkedWin
-Version: 0.2.0-beta1
-Architecture: iphoneos-arm64e
-Description: Lightweight automatic players for eight LinkedIn games. RootHide beta.
+Version: 0.2.0-beta2
+Architecture: iphoneos-arm64
+Description: Lightweight automatic players for eight LinkedIn games. Beta.
 Maintainer: Liam
 Author: Liam
 Section: Tweaks
