@@ -63,11 +63,13 @@ async function replayQueens(read,validate,value,control){
   for(let i=0;i<c.puzzle.gridSize*c.puzzle.gridSize;i++)if(value(c.cells.get(i))==='queen'&&!targets.has(i))throw Error('Queen outside the supplied solution at '+i+'; clear it manually');
   return c;
  }
+ const last=route.filter(i=>value(initial.cells.get(i))!=='queen').at(-1);
  let context=check(),writes=0;
  for(const index of route){
   context=check();
   for(let click=0;value(context.cells.get(index))!=='queen'&&click<2;click++){
-   const before=value(context.cells.get(index)),handler=context.onClick;
+   if(index===last){await control.beforeFinish?.(check);context=check();}
+   control.noteInput?.();const before=value(context.cells.get(index)),handler=context.onClick;
    handler(index);writes++;
    let changed=false;
    for(let attempt=0;attempt<30;attempt++){

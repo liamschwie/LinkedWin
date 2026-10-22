@@ -15,7 +15,8 @@ assert.throws(()=>runtime.validatePinpointPuzzle({...puzzle,clues:['']}),/clue/i
  runtime.document={querySelectorAll:s=>s.startsWith('code[')?[node]:s==='.pinpoint__container'?[root]:[]};runtime.location={pathname:'/games/view/pinpoint',href:'https://www.linkedin.com/games/view/pinpoint'};runtime.setTimeout=fn=>fn();
  runtime.HTMLInputElement=function(){};Object.defineProperty(runtime.HTMLInputElement.prototype,'value',{set(v){this.value=v;}});runtime.InputEvent=function(type,props){this.type=type;Object.assign(this,props);};
  const source=runtime.capturePinpointPuzzle(),read=()=>runtime.readPinpointContext(source),control={cancelled:false,events:[]};
- await runtime.replayPinpoint(read,runtime.validatePinpointPuzzle,control);assert.equal(submits,1);assert.equal(writes,1);
+ let finishes=0,noted=0;control.noteInput=()=>noted++;control.beforeFinish=async check=>{finishes++;check();};
+ await runtime.replayPinpoint(read,runtime.validatePinpointPuzzle,control);assert(finishes>0&&noted>0,'finishing action passes through the shared completion gate');delete control.beforeFinish;delete control.noteInput;assert.equal(submits,1);assert.equal(writes,1);
  input.value='a different guess';writes=0;await assert.rejects(runtime.replayPinpoint(read,runtime.validatePinpointPuzzle,control),/existing/i);assert.equal(writes,0);assert.equal(submits,1);
  input.value='';await assert.rejects(runtime.replayPinpoint(read,runtime.validatePinpointPuzzle,{cancelled:true,events:[]}),/cancel/i);assert.equal(submits,1);
  input.disabled=true;assert.throws(read,/enabled/i);input.disabled=false;

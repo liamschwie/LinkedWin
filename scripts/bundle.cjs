@@ -1,6 +1,7 @@
 // Reuse the tested page functions; omit the Frida/USB launchers from the tweak.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..');
+const summarize=require('./diagnostics.cjs');
 const games=[
  ['zip','Zip','__zipPlayer',['captureZipBoard','validateZipPuzzle','checkZipCells','replayZipDrag']],
  ['tango','Tango','__tangoPlayer',['readTangoContext','validateTangoPuzzle','tangoCellValue','replayTango']],
@@ -19,6 +20,8 @@ const entries=games.map(([slug,name,key,helpers])=>{
 const source=`(()=>{
  if(window.__linkedWinTick)return;
  const games={${entries.join(',\n')}};
+ const summarize=(${summarize.toString()});
+ const clock=()=>typeof performance==='object'&&typeof performance.now==='function'?performance.now():Date.now();
  let current=null,beganAt=Date.now(),playAt=null,started=false,stopped=false;
  window.__linkedWinStop=(discard=false)=>{if(current){const key=games[current].key;window[key]?.stop();if(discard){delete window[key];current=null;}}stopped=true;};
  window.addEventListener?.('pagehide',()=>window.__linkedWinStop(true));
@@ -29,7 +32,18 @@ const source=`(()=>{
   if(!game)return JSON.stringify({game:null,events:[]});
   if(document.hidden){if(!stopped)window.__linkedWinStop();return JSON.stringify({game,events:[]});}
   if(stopped)return JSON.stringify({game,events:[]});
-  const entry=games[game];
+  const entry=games[game],initialEvents=[];
+  if(!window[entry.key]?.noteInput){
+   const initial=JSON.parse(entry.install('inspect'));initialEvents.push(...initial.events||[]);
+   const control=window[entry.key];
+   control.noteInput=()=>{if(control.firstInputAt===undefined)control.firstInputAt=clock();};
+   control.beforeFinish=async check=>{
+    control.noteInput();let remaining=3250-(clock()-control.firstInputAt);
+    if(remaining>0)control.events.push('Waiting for 3250 ms total play time before finishing.');
+    while(remaining>0){check();if(control.cancelled)throw Error('Playback cancelled');await new Promise(resolve=>setTimeout(resolve,Math.min(100,remaining)));remaining=3250-(clock()-control.firstInputAt);}
+    check();if(control.cancelled)throw Error('Playback cancelled');
+   };
+  }
   let result;
   if(game==='zip'){
    // Zip's Frida adapter is manual; readiness gates its single automatic start.
@@ -38,7 +52,8 @@ const source=`(()=>{
   }else result=window[entry.key]?.started?window[entry.key].drain():entry.install('auto');
   if((started||window[entry.key]?.started)&&playAt===null)playAt=Date.now();
   if(playAt===null?Date.now()-beganAt>60000:Date.now()-playAt>180000)window.__linkedWinStop();
-  return JSON.stringify({...JSON.parse(result),game});
+  const report=JSON.parse(result),events=[...initialEvents,...report.events||[]];
+  return JSON.stringify({...report,events:[],game,diagnostics:events.map(event=>summarize(event,game))});
  };
 })();`;
 new vm.Script(source);

@@ -87,11 +87,14 @@ async function replayPatches(read,validate,progress,control){
   const c=read();if(c.gameId!==initial.gameId||JSON.stringify(c.puzzle)!==identity)throw Error('Patches puzzle changed');
   return {c,done:progress(c.regions,solution)};
  }
+ const lastRegion=solution.filter(region=>!progress(initial.regions,solution).has(region.cellIdxes.slice().sort((a,b)=>a-b).join(','))).at(-1);
  let writes=0;
  for(const region of solution){
   let {c,done}=check();const key=region.cellIdxes.slice().sort((a,b)=>a-b).join(',');if(done.has(key))continue;
+  if(region===lastRegion){await control.beforeFinish?.(()=>check());({c}=check());}
   let release=c.onEndDrag;
   try{
+   control.noteInput?.();
    const start=c.onStartDrag;start(region.startIdx);await wait(40);
    ({c}=check());release=c.onEndDrag;
    const drag=c.onDragging;drag({cellIdx:region.endIdx});await wait(40);

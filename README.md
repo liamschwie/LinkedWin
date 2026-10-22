@@ -10,6 +10,8 @@ Download the **rootless** `.deb` from [Releases](https://github.com/liamschwie/L
 
 Open a supported game to play automatically. Leave the game or background LinkedIn to cancel.
 
+Each player waits at least 3.25 seconds from its first input before finishing, without changing the game's timer. This is a provisional workaround for fast-save failures; a server minimum has not been confirmed.
+
 ## Build
 
 Requires [Theos](https://theos.dev/docs/installation), Xcode, Node.js, ldid and Debian packaging tools.
@@ -24,6 +26,8 @@ Packages are written to `packages/`. The default is rootless (`iphoneos-arm64`),
 
 For a native RootHide package, use [RootHide Theos](https://github.com/roothide/theos) with `make clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide`; install that package directly without Patcher.
 
-**Beta:** Native loading and faster pacing still need phone testing. Unfinished Queens and completed/partial Zip handling remain unverified; Crossclimb's earlier post-win termination is unresolved.
+**Beta:** Mini Sudoku and Wend need phone testing with the new timing guard. Patches making no moves is still under investigation. Unfinished Queens, partial Zip and Crossclimb's earlier post-win termination remain unverified.
+
+For troubleshooting, `frida -U -N com.linkedin.LinkedIn -l frida/read-log.js` prints the tweak's local diagnostic log. It includes save status/errors and elapsed time, with account IDs and credentials redacted.
 
 [GPLv3](LICENSE).

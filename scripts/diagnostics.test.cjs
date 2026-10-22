@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const summarize=require('./diagnostics.cjs');
+const request={variables:{entity:{entity:{gameStoredRecord:{gamePlayState:'END_SOLVED',timeElapsed:2}},resourceKey:'urn:li:fsd_game:(ACoAA_PRIVATE_MEMBER,4,123)'}}};
+const event=summarize('WEND XHR SAVE [unchanged]: '+JSON.stringify(request),'wend');
+assert.equal(event.stage,'request');assert.equal(event.gamePlayState,'END_SOLVED');assert.equal(event.elapsedSeconds,2);
+assert(!JSON.stringify(event).includes('PRIVATE_MEMBER'));
+const failure=summarize('WEND FETCH RESPONSE HTTP 200: 0:'+JSON.stringify({response:{errors:[{code:'TOO_FAST',message:'Elapsed time too short for urn:li:member:PRIVATE_MEMBER token Bearer secret-token'}]}}),'wend');
+assert.equal(failure.status,200);assert.equal(failure.errors[0].code,'TOO_FAST');assert(!JSON.stringify(failure).includes('PRIVATE_MEMBER'));assert(!JSON.stringify(failure).includes('secret-token'));
+const nested=summarize('WEND FETCH RESPONSE HTTP 200: '+JSON.stringify({errors:[{code:'SAVE_FAILED'}],data:{errors:[]}}),'wend');
+assert.equal(nested.errors[0]?.code,'SAVE_FAILED','nested empty error lists must not erase a save error');
+const success=summarize('PATCHES FETCH RESPONSE HTTP 200: 0:{"response":{"errors":[],"gamePlayState":"END_SOLVED"}}','patches');
+assert.equal(success.gamePlayState,'END_SOLVED');assert.deepEqual(success.errors,[]);
+assert.equal(summarize('PATCHES NOT READY: Expected one current Patches puzzle','patches').stage,'status');
+console.log('Diagnostics: GraphQL/SDUI summaries, business errors at HTTP 200 and account/token redaction passed.');

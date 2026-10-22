@@ -32,9 +32,12 @@ console.log('Crossclimb: shuffled order, contiguous unique indices, word length,
  runtime.HTMLInputElement=function(){};Object.defineProperty(runtime.HTMLInputElement.prototype,'value',{set(v){this.value=v;}});
  runtime.InputEvent=function(type,props){this.type=type;Object.assign(this,props);};runtime.KeyboardEvent=runtime.InputEvent;
  const read=()=>runtime.readCrossclimbContext(source),control={cancelled:false,events:[]};
- await runtime.replayCrossclimb(read,runtime.validateCrossclimbPuzzle,runtime.fillCrossclimbRow,runtime.reorderCrossclimbRow,control);
+ let finishes=0,noted=0;control.noteInput=()=>noted++;control.beforeFinish=async check=>{finishes++;check();};
+ await runtime.replayCrossclimb(read,runtime.validateCrossclimbPuzzle,runtime.fillCrossclimbRow,runtime.reorderCrossclimbRow,control);assert(finishes>0&&noted>0,'finishing action passes through the shared completion gate');delete control.beforeFinish;delete control.noteInput;
  assert.deepEqual(rows.map(r=>r.inputs.map(i=>i.value).join('')),['SAME','LAME','LAMP','LIMP','LIME','TIME']);assert.equal(writes.length,24);
  writes.length=0;await runtime.replayCrossclimb(read,runtime.validateCrossclimbPuzzle,runtime.fillCrossclimbRow,runtime.reorderCrossclimbRow,control);assert.equal(writes.length,0);
+ rows.at(-1).inputs[0].value='';finishes=0;control.beforeFinish=async check=>{finishes++;assert.equal(check().rows.at(-1).value,'_IME');};
+ await runtime.replayCrossclimb(read,runtime.validateCrossclimbPuzzle,runtime.fillCrossclimbRow,runtime.reorderCrossclimbRow,control);assert.equal(finishes,1,'partially filled final word still waits before its last missing letter');delete control.beforeFinish;writes.length=0;
  await assert.rejects(runtime.replayCrossclimb(read,runtime.validateCrossclimbPuzzle,runtime.fillCrossclimbRow,runtime.reorderCrossclimbRow,{cancelled:true,events:[]}),/cancel/i);
  rows[1].inputs[0].value='Z';await assert.rejects(runtime.replayCrossclimb(read,runtime.validateCrossclimbPuzzle,runtime.fillCrossclimbRow,runtime.reorderCrossclimbRow,control),/existing/i);assert.equal(writes.length,0);rows[1].inputs[0].value='L';
  const tmp=rows[1];rows[1]=rows[2];rows[2]=tmp;

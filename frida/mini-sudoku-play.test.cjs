@@ -20,7 +20,8 @@ const notes=structuredClone(cells);notes[0].text='123';assert.throws(()=>runtime
  const context=()=>({grid,board:{...board,values:values.slice()},cells:values.map((_,i)=>({dispatchEvent(){},click(){selected=i;},getAttribute:key=>key==='class'&&selected===i?'sudoku-cell-active':null})),buttons:solution.slice(0,6).map(v=>({disabled:false,click(){writes.push([selected,v]);values[selected]=v;}}))});
  runtime.MouseEvent=function(type,props){this.type=type;Object.assign(this,props);};runtime.window={};
  const control={cancelled:false,events:[]};
- await runtime.replayMiniSudoku(context,runtime.solveMiniSudoku,control);
+ let finishes=0,noted=0;control.noteInput=()=>noted++;control.beforeFinish=async check=>{finishes++;check();};
+ await runtime.replayMiniSudoku(context,runtime.solveMiniSudoku,control);assert(finishes>0&&noted>0,'finishing action passes through the shared completion gate');delete control.beforeFinish;delete control.noteInput;
  assert.deepEqual(values,solution);assert.equal(writes.length,6);
  writes.length=0;await runtime.replayMiniSudoku(context,runtime.solveMiniSudoku,control);assert.equal(writes.length,0);
  await assert.rejects(runtime.replayMiniSudoku(context,runtime.solveMiniSudoku,{cancelled:true,events:[]}),/cancel/i);

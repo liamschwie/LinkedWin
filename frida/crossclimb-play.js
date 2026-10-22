@@ -66,12 +66,14 @@ async function fillCrossclimbRow(read,row,expected,control){
   if(middle.length!==1)throw Error('Selected Crossclimb clue is ambiguous');expected=middle[0];
  }
  for(let i=0;i<expected.word.length;i++)if(row.inputs[i].value&&row.inputs[i].value!==expected.word[i])throw Error('Existing Crossclimb letters conflict with clue; clear manually');
+ const last=Array.from(expected.word,(_,i)=>i).filter(i=>row.inputs[i].value!==expected.word[i]).at(-1);
  for(let i=0;i<expected.word.length;i++){
   c=check();row=c.rows.find(r=>r.element===row.element);if(!row)throw Error('Crossclimb row changed during input');
   const input=row.inputs[i];if(input.value===expected.word[i])continue;
   if(input.disabled||input.readOnly)throw Error('Crossclimb input is disabled');
   input.focus();input.click();
-  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,expected.word[i]);
+  if(expected.word===control.finishingWord&&i===last)await control.beforeFinish?.(check);
+  control.noteInput?.();Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,expected.word[i]);
   input.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:expected.word[i]}));
   let verified=false,feedback='';
   for(let attempt=0;attempt<30;attempt++){
@@ -116,6 +118,7 @@ async function replayCrossclimb(read,validate,fill,reorder,control){
  const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
  if(control.cancelled)throw Error('Playback cancelled');
  const initial=read(),ordered=validate(initial.puzzle),identity=JSON.stringify(initial.puzzle),middle=ordered.slice(1,-1);
+ control.finishingWord=[ordered[0],ordered.at(-1)].filter(r=>!initial.rows.some(row=>row.value===r.word)).at(-1)?.word;
  function check(){if(control.cancelled)throw Error('Playback cancelled');const c=read();if(c.root!==initial.root||JSON.stringify(c.puzzle)!==identity)throw Error('Crossclimb puzzle changed');return c;}
  let c=check();const full=new Set();
  for(const row of c.rows.slice(1,-1)){

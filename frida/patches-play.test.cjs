@@ -24,7 +24,8 @@ console.log('Patches: full coverage, rectangles, clue counts, number and shape c
  elements[0]['__reactFiber$test']={return:stale};
  runtime.document={querySelectorAll:()=>elements};runtime.location={pathname:'/games/view/patches'};runtime.setTimeout=fn=>fn();
  const control={cancelled:false,events:[]};
- await runtime.replayPatches(runtime.readPatchesContext,runtime.validatePatchesPuzzle,runtime.checkPatchesProgress,control);
+ let finishes=0,noted=0;control.noteInput=()=>noted++;control.beforeFinish=async check=>{finishes++;check();};
+ await runtime.replayPatches(runtime.readPatchesContext,runtime.validatePatchesPuzzle,runtime.checkPatchesProgress,control);assert(finishes>0&&noted>0,'finishing action passes through the shared completion gate');delete control.beforeFinish;delete control.noteInput;
  assert.deepEqual(state.memoizedState.map(r=>Array.from(r.cells)),p.solution.map(r=>r.cellIdxes));
  assert.deepEqual(calls,[['start',0],['drag',3],['end'],['start',4],['drag',13],['end'],['start',6],['drag',15],['end']]);
  calls.length=0;await runtime.replayPatches(runtime.readPatchesContext,runtime.validatePatchesPuzzle,runtime.checkPatchesProgress,control);assert.equal(calls.length,0,'completed patches untouched');

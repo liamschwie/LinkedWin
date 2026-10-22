@@ -28,7 +28,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
  vm.runInNewContext(fs.readFileSync(__dirname+'/tango-play.js','utf8'),runtime);
  let info=runtime.readTangoContext();assert.equal(info.onClick,handler);
  const control={cancelled:false,events:[]};
- await runtime.replayTango(runtime.readTangoContext,runtime.validateTangoPuzzle,runtime.tangoCellValue,control);
+ let finishes=0,noted=0;control.noteInput=()=>noted++;control.beforeFinish=async check=>{finishes++;check();};
+ await runtime.replayTango(runtime.readTangoContext,runtime.validateTangoPuzzle,runtime.tangoCellValue,control);assert(finishes>0&&noted>0,'finishing action passes through the shared completion gate');delete control.beforeFinish;delete control.noteInput;
  assert.deepEqual(values,puzzle.solution,'all editable cells filled with expected values');
  assert.equal(writes.length,8,'givens skipped and each blank set once');
  assert(writes.every(([i,event,value])=>!puzzle.presetCellIdxes.includes(i)&&event===undefined&&value===puzzle.solution[i]));

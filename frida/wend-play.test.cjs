@@ -25,7 +25,8 @@ bad=structuredClone(puzzle);bad.presets=[{}];assert.throws(()=>runtime.validateW
  }}));cells[0]['__reactFiber$test']={return:stale};
  runtime.document={querySelectorAll:()=>cells};runtime.location={pathname:'/games/view/wend',href:'https://www.linkedin.com/games/view/wend'};runtime.window={innerWidth:400,innerHeight:800};runtime.setTimeout=fn=>fn();runtime.MouseEvent=function(type,props){this.type=type;Object.assign(this,props);};
  const control={cancelled:false,events:[]};
- await runtime.replayWend(runtime.readWendContext,runtime.validateWendPuzzle,runtime.checkWendProgress,control);
+ let finishes=0,noted=0;control.noteInput=()=>noted++;control.beforeFinish=async check=>{finishes++;check();};
+ await runtime.replayWend(runtime.readWendContext,runtime.validateWendPuzzle,runtime.checkWendProgress,control);assert(finishes>0&&noted>0,'finishing action passes through the shared completion gate');delete control.beforeFinish;delete control.noteInput;
  assert.deepEqual(committed.map(w=>Array.from(w.sequencingIndex)),[[0,1,2],[6,7,8]]);
  grid.isDragEnabled=false;
  await runtime.replayWend(runtime.readWendContext,runtime.validateWendPuzzle,runtime.checkWendProgress,control);

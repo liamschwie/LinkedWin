@@ -78,9 +78,11 @@ async function replayMiniSudoku(read,solve,control){
   for(let i=0;i<36;i++)if(c.board.values[i]&&c.board.values[i]!==solution[i])throw Error('Existing value conflicts with solution at '+i+'; clear it manually');
   return c;
  }
+ const last=solution.map((_,i)=>i).filter(i=>initial.board.values[i]!==solution[i]).at(-1);
  let c=check(),writes=0;
  for(let i=0;i<36;i++){
   c=check();if(c.board.values[i]===solution[i])continue;
+  control.noteInput?.();
   const cell=c.cells[i];
   // Use a complete mouse gesture for grid controllers that select on release.
   try{cell.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,button:0,buttons:1}));}
@@ -89,6 +91,7 @@ async function replayMiniSudoku(read,solve,control){
   const selected=c.cells[i],classes=selected.getAttribute('class')||'';
   if(selected.getAttribute('aria-selected')!=='true'&&!/\bsudoku-cell(?:--|-)(?:is-)?(?:selected|active)\b/.test(classes))throw Error('Cell selection not confirmed at '+i+': '+classes);
   if(c.board.values[i]!==0)throw Error('Cell changed during selection');
+  if(i===last){await control.beforeFinish?.(check);c=check();}
   if(c.buttons[solution[i]-1].disabled)throw Error('Number '+solution[i]+' is disabled for selected cell '+i);
   c.buttons[solution[i]-1].click();writes++;
   let verified=false;

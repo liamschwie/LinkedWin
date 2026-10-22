@@ -80,6 +80,7 @@ async function replayWend(read,validate,progress,control){
   if(control.cancelled)throw Error('Playback cancelled');
   const c=read();if(c.gameId!==initial.gameId||JSON.stringify(c.puzzle)!==identity)throw Error('Wend puzzle changed');return c;
  }
+ const lastWord=solution.filter(path=>!progress(initial.words,solution).has(path.join(','))).at(-1);
  let c=check(),writes=0;progress(c.words,solution);
  // Validate every target's geometry before the first input.
  for(const path of solution)for(const i of path){
@@ -95,10 +96,10 @@ async function replayWend(read,validate,progress,control){
   if(c.inputEnabled===false)throw Error('Wend drag input is disabled before all words are complete');
   let last=path[0];
   try{
-   send(last,'mousedown',1);await wait(80);c=check();
+   control.noteInput?.();send(last,'mousedown',1);await wait(80);c=check();
    // Preserve the proven grid controller's within-cell drag threshold crossing.
    send(last,'mousemove',1,12);await wait(80);
-   for(const i of path.slice(1)){c=check();send(i,'mousemove',1);last=i;await wait(80);}
+   for(const i of path.slice(1)){c=check();if(path===lastWord&&i===path.at(-1)){await control.beforeFinish?.(check);c=check();}send(i,'mousemove',1);last=i;await wait(80);}
   }finally{send(last,'mouseup',0);}
   let verified=false;
   for(let attempt=0;attempt<30;attempt++){await wait(20);c=check();if(progress(c.words,solution).has(key)){verified=true;break;}}

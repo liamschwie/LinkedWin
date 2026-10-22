@@ -42,10 +42,12 @@ async function replayPinpoint(read,validate,control){
  const input=c.input,form=c.form;
  input.focus();input.click();c=check();
  if(c.input!==input||c.form!==form)throw Error('Pinpoint input changed');
- Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,answer);
+ control.noteInput?.();Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,answer);
  input.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:answer}));
  await new Promise(resolve=>setTimeout(resolve,80));c=check();
  if(c.input!==input||c.form!==form||input.value!==answer||validate(c.puzzle)!==answer)throw Error('Pinpoint answer input not retained');
+ await control.beforeFinish?.(check);c=check();
+ if(c.input!==input||c.form!==form||input.value!==answer)throw Error('Pinpoint input changed before submission');
  form.requestSubmit();
  control.events.push('PINPOINT SUBMITTED: '+answer+'. Check the original completion response; input alone does not prove a saved win.');
 }

@@ -64,14 +64,15 @@ async function replayTango(read,validate,value,control){
   const current=value(context.cells.get(i));
   if(presets.has(i)&&current!==solution[i])throw Error('Preset does not match supplied solution at '+i);
  }
- const readGameId=context.gameId,puzzleIdentity=JSON.stringify(context.puzzle);
+ const readGameId=context.gameId,puzzleIdentity=JSON.stringify(context.puzzle),last=solution.map((_,i)=>i).filter(i=>!presets.has(i)&&value(context.cells.get(i))!==solution[i]).at(-1);
  let writes=0;
  for(let i=0;i<solution.length;i++){
   if(control.cancelled)throw Error('Playback cancelled');
   context=read();
   if(context.gameId!==readGameId||JSON.stringify(context.puzzle)!==puzzleIdentity)throw Error('Puzzle changed during playback');
   if(presets.has(i)||value(context.cells.get(i))===solution[i])continue;
-  const handler=context.onClick;handler(i,undefined,solution[i]);writes++;
+  if(i===last)await control.beforeFinish?.(()=>{if(control.cancelled)throw Error('Playback cancelled');const c=read();if(c.gameId!==readGameId||JSON.stringify(c.puzzle)!==puzzleIdentity)throw Error('Puzzle changed during playback');});
+  context=read();control.noteInput?.();const handler=context.onClick;handler(i,undefined,solution[i]);writes++;
   let verified=false;
   for(let attempt=0;attempt<30;attempt++){
    await wait(20);if(control.cancelled)throw Error('Playback cancelled');

@@ -32,7 +32,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
  const cells=new Map(Array.from({length:36},(_,i)=>[i,new Cell(i)]));
  const page={MouseEvent:class{constructor(type,options){this.type=type;Object.assign(this,options);}},window:{innerWidth:400,innerHeight:800},setTimeout:fn=>fn()};
  vm.runInNewContext(fs.readFileSync(__dirname+'/zip-play.js','utf8'),page);
- await page.replayZipDrag(cells,route,{cancelled:false,events:[]});
+ let finishes=0,noted=0;
+ await page.replayZipDrag(cells,route,{cancelled:false,events:[],noteInput(){noted++;},async beforeFinish(check){assert.equal(trace.length,route.length-1,'last Zip cell remains unvisited before completion gate');finishes++;check();}});
+ assert.equal(finishes,1);assert.equal(noted,1);
  assert.deepEqual(trace,Array.from(route),'threshold simulator receives the exact full path');
  assert.equal(controller.isMouseDown,false,'mouse released after playback');
  const badCells=new Map(cells);badCells.delete(6);

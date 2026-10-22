@@ -39,13 +39,14 @@ async function replayZipDrag(cells,route,control) {
   if(control.cancelled) throw Error('Playback cancelled');
   let last=route[0];
   try {
-    send(last,'mousedown',1);
+    control.noteInput?.();send(last,'mousedown',1);
     await wait();
     // Cross the grid controller's drag threshold within the initial cell.
     send(last,'mousemove',1,12);
     await wait();
     for(const index of route.slice(1)) {
       if(control.cancelled) throw Error('Playback cancelled');
+      if(index===route.at(-1))await control.beforeFinish?.(()=>{if(control.cancelled)throw Error('Playback cancelled');control.check?.();});
       send(index,'mousemove',1);last=index;
       await wait();
     }

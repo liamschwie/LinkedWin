@@ -23,7 +23,8 @@ console.log('Queens: solution indices, columns, touching queens, regions and mal
  runtime.location={pathname:'/games/view/queens',href:'https://www.linkedin.com/games/view/queens'};
  runtime.document={querySelectorAll:()=>elements};runtime.setTimeout=fn=>fn();
  const control={cancelled:false,events:[]};
- await runtime.replayQueens(runtime.readQueensContext,runtime.validateQueensPuzzle,runtime.queensCellValue,control);
+ let finishes=0,noted=0;control.noteInput=()=>noted++;control.beforeFinish=async check=>{finishes++;check();};
+ await runtime.replayQueens(runtime.readQueensContext,runtime.validateQueensPuzzle,runtime.queensCellValue,control);assert(finishes>0&&noted>0,'finishing action passes through the shared completion gate');delete control.beforeFinish;delete control.noteInput;
  assert.deepEqual(states.map((s,i)=>s==='queen'?i:-1).filter(i=>i>=0),[1,7,8,14]);
  assert.deepEqual(writes,[1,1,7,7,8,8,14,14]);
  writes.length=0;
