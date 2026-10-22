@@ -1,0 +1,155 @@
+{
+  "puzzles": [
+    {
+      "source": "mounted game props",
+      "value": {
+        "trailGamePuzzle": {
+          "$type": "proto.com.linkedin.games.api.library.TrailGamePuzzle",
+          "gridSize": 6,
+          "orderedSequence": [
+            0,
+            35,
+            25,
+            13,
+            22,
+            20,
+            10,
+            15
+          ],
+          "solution": [
+            0,
+            6,
+            12,
+            18,
+            24,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            29,
+            28,
+            27,
+            26,
+            25,
+            19,
+            13,
+            7,
+            1,
+            2,
+            3,
+            4,
+            5,
+            11,
+            17,
+            23,
+            22,
+            21,
+            20,
+            14,
+            8,
+            9,
+            10,
+            16,
+            15
+          ],
+          "walls": [],
+          "wallHints": [
+            {
+              "$type": "proto.com.linkedin.games.api.library.Walls",
+              "walls": [
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 25,
+                  "direction": "WallDirection_DOWN"
+                },
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 25,
+                  "direction": "WallDirection_LEFT"
+                }
+              ]
+            },
+            {
+              "$type": "proto.com.linkedin.games.api.library.Walls",
+              "walls": [
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 10,
+                  "direction": "WallDirection_UP"
+                },
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 10,
+                  "direction": "WallDirection_RIGHT"
+                }
+              ]
+            },
+            {
+              "$type": "proto.com.linkedin.games.api.library.Walls",
+              "walls": [
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 20,
+                  "direction": "WallDirection_DOWN"
+                },
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 20,
+                  "direction": "WallDirection_LEFT"
+                }
+              ]
+            },
+            {
+              "$type": "proto.com.linkedin.games.api.library.Walls",
+              "walls": [
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 14,
+                  "direction": "WallDirection_LEFT"
+                },
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 14,
+                  "direction": "WallDirection_RIGHT"
+                }
+              ]
+            },
+            {
+              "$type": "proto.com.linkedin.games.api.library.Walls",
+              "walls": [
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 0,
+                  "direction": "WallDirection_RIGHT"
+                }
+              ]
+            },
+            {
+              "$type": "proto.com.linkedin.games.api.library.Walls",
+              "walls": [
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 6,
+                  "direction": "WallDirection_RIGHT"
+                }
+              ]
+            },
+            {
+              "$type": "proto.com.linkedin.games.api.library.Walls",
+              "walls": [
+                {
+                  "$type": "proto.com.linkedin.games.api.library.Wall",
+                  "cellIdx": 29,
+                  "direction": "WallDirection_UP"
+                }
+              ]
+            }
+          ],
+          "orderedSequencePositions": []
+        }
+      }
+    }
+  ]
+}

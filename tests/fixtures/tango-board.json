@@ -1,0 +1,42 @@
+{
+  "puzzles": [
+    {
+      "source": "mounted game props",
+      "value": {
+        "lotkaGamePuzzle": {
+          "$type": "proto.com.linkedin.games.api.library.LotkaGamePuzzle",
+          "gridSize": 4,
+          "presetCellIdxes": [
+            0,
+            2,
+            4,
+            6,
+            9,
+            11,
+            13,
+            15
+          ],
+          "edges": [],
+          "solution": [
+            "LotkaCellValue_ZERO",
+            "LotkaCellValue_ZERO",
+            "LotkaCellValue_ONE",
+            "LotkaCellValue_ONE",
+            "LotkaCellValue_ZERO",
+            "LotkaCellValue_ONE",
+            "LotkaCellValue_ZERO",
+            "LotkaCellValue_ONE",
+            "LotkaCellValue_ONE",
+            "LotkaCellValue_ONE",
+            "LotkaCellValue_ZERO",
+            "LotkaCellValue_ZERO",
+            "LotkaCellValue_ONE",
+            "LotkaCellValue_ZERO",
+            "LotkaCellValue_ONE",
+            "LotkaCellValue_ZERO"
+          ]
+        }
+      }
+    }
+  ]
+}

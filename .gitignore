@@ -1,0 +1,7 @@
+.theos/
+packages/
+generated/
+.DS_Store
+*.log
+*.ipa
+analysis/
